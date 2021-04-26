@@ -26,6 +26,14 @@ class SecurityConfiguration( @Autowired var dataSource: DataSource):WebSecurityC
     override fun configure(auth: AuthenticationManagerBuilder?) {
         auth?.jdbcAuthentication()
                 ?.dataSource(dataSource)
+                ?.usersByUsernameQuery("select username,password,enabled "
+                        + "from users "
+                        + "where username = ?")
+                ?.authoritiesByUsernameQuery("select username,authority  "
+                        + "from authorities "
+                        + "where username = ?"
+                )
+                /*
                 ?.withDefaultSchema()
                 ?.withUser(
                         User.withUsername("user")
@@ -37,13 +45,13 @@ class SecurityConfiguration( @Autowired var dataSource: DataSource):WebSecurityC
                                 .password("admin")
                                 .roles("admin")
                 )
-
+            */
 
     }
     override fun configure(http: HttpSecurity?) {
         http?.authorizeRequests()
-                ?.antMatchers("/admin")?.hasRole("admin")
-                ?.antMatchers("/user")?.hasAnyRole("user","admin")
+                ?.antMatchers("/admin")?.hasRole("ADMIN")
+                ?.antMatchers("/user")?.hasAnyRole("USER","ADMIN")
                 ?.antMatchers("/")?.permitAll()
                 ?.and()?.formLogin()
     }
